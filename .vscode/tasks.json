@@ -1,0 +1,66 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build & Run",
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "command": "node glue.js",
+            "dependsOn": "Build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "command": "./build.sh -i=src/main -o=bin/main -t",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run",
+            "type": "shell",
+            "command": "node glue.js",
+            "problemMatcher": []
+        },
+        {
+            "label": "Gen Typings",
+            "type": "shell",
+            "command": "./scripts/gen_typings.js src/main.zig -o typings/${input:chooseModuleName}.d.ts -m ${input:chooseModuleName}",
+            "problemMatcher": []
+        },
+        {
+            "label": "ObjDump",
+            "type": "shell",
+            "command": "wasm-objdump ${input:chooseWasmFile} -x | egrep '(Import|Function|Export|Data|Custom).+| \\- (func|memory|segment)\\[\\d+\\] (memory|sig|pages|<).*'",
+            "problemMatcher": []
+        },
+        {
+            "label": "Wasm2Wat",
+            "type": "shell",
+            "command": "wasm2wat ${input:chooseWasmFile} -f --enable-all --inline-exports --inline-imports",
+            "problemMatcher": []
+        },
+    ],
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "chooseWasmFile",
+            "default": "bin/main.wasm",
+            "description": "Choose a wasm file."
+        },
+        {
+            "type": "promptString",
+            "id": "chooseModuleName",
+            "default": "main",
+            "description": "Choose a module name."
+        }
+    ]
+}
